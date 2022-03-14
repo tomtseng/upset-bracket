@@ -1,3 +1,4 @@
+import collections
 import itertools
 import os
 import pickle
@@ -79,4 +80,74 @@ def get_all_scores():
         pickle.dump(name_to_scores, open(FILENAME, "wb"))
         return name_to_scores
 
+
+assignment = {
+    "Gonzaga": 6,
+    "Georgia State": 0,
+    "Boise State": 0,
+    "Memphis": 1,
+    "Connecticut": 2,
+    "New Mexico State": 0,
+    "Arkansas": 1,
+    "Vermont": 0,
+    "Alabama": 1,
+    "Notre Dame/Rutgers": 0,
+    "Texas Tech": 3,
+    "Montana State": 0,
+    "Michigan State": 1,
+    "Davidson": 0,
+    "Duke": 2,
+    "Cal State Fullerton": 0,
+    "Baylor": 2,
+    "Norfolk State": 0,
+    "North Carolina": 1,
+    "Marquette": 0,
+    "Saint Mary's (CA)": 1,
+    "Indiana/Wyoming": 0,
+    "UCLA": 3,
+    "Akron": 0,
+    "Texas": 1,
+    "Virginia Tech": 0,
+    "Purdue": 2,
+    "Yale": 0,
+    "Murray State": 1,
+    "San Francisco": 0,
+    "Kentucky": 4,
+    "Saint Peter's": 0,
+    "Kansas": 5,
+    "Texas A&M/Texas Southern": 0,
+    "San Diego State": 1,
+    "Creighton": 0,
+    "Iowa": 2,
+    "Richmond": 0,
+    "Providence": 1,
+    "South Dakota State": 0,
+    "Louisiana State": 1,
+    "Iowa State": 0,
+    "Wisconsin": 2,
+    "Colgate": 0,
+    "Southern California": 1,
+    "Miami (FL)": 0,
+    "Auburn": 3,
+    "Jacksonville State": 0,
+    "Arizona": 4,
+    "Bryant/Wright State": 0,
+    "Seton Hall": 0,
+    "Texas Christian": 1,
+    "Houston": 2,
+    "Alabama-Birmingham": 0,
+    "Illinois": 1,
+    "Chattanooga": 0,
+    "Colorado State": 0,
+    "Michigan": 1,
+    "Tennessee": 2,
+    "Longwood": 0,
+    "Ohio State": 1,
+    "Loyola (IL)": 0,
+    "Villanova": 3,
+    "Delaware": 0,
+}
+
 scores = get_all_scores()
+print(collections.Counter(assignment.values()))
+print("Score:", sum(scores[name][r] for name, r in assignment.items()))
