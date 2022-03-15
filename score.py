@@ -80,6 +80,42 @@ def get_all_scores():
         pickle.dump(name_to_scores, open(FILENAME, "wb"))
         return name_to_scores
 
+# sweep through `assignment` once and greedily look for swaps that increase the
+# expected score
+def find_swaps(scores, assignment):
+    df = read_data()
+    swaps = []
+    score = score_assignment(scores, assignment)
+    for slot, row in df.iterrows():
+        challengers = get_challengers(slot)
+        name = row["team_name"]
+        max_rounds = assignment[name]
+        (prev_slot_start, prev_slot_end) = (slot, slot + 1)
+        for i, (slot_start, slot_end) in enumerate(challengers):
+            if i >= max_rounds:
+                break
+            for opponent_slot in itertools.chain(
+                range(slot_start, prev_slot_start), range(prev_slot_end, slot_end)
+            ):
+                opponent = df.loc[opponent_slot]
+                opponent_name = opponent["team_name"]
+                opponent_round = assignment[opponent_name]
+                if opponent_round == i:
+                    assignment[opponent_name] = max_rounds
+                    assignment[name] = i
+                    new_score = score_assignment(scores, assignment)
+                    if new_score > score:
+                        print("found swap", name, opponent_name)
+                        return
+                    else:
+                        assignment[name] = max_rounds
+                        assignment[opponent_name] = i
+                        break
+            (prev_slot_start, prev_slot_end) = (slot_start, slot_end)
+    print("no greedy swaps found")
+
+def score_assignment(scores, assignment):
+    return sum(scores[name][r] for name, r in assignment.items())
 
 assignment = {
     "Gonzaga": 6,
@@ -124,8 +160,8 @@ assignment = {
     "South Dakota State": 1,
     "Louisiana State": 0,
     "Iowa State": 2,
-    "Wisconsin": 1,
-    "Colgate": 0,
+    "Wisconsin": 0,
+    "Colgate": 1,
     "Southern California": 0,
     "Miami (FL)": 1,
     "Auburn": 3,
@@ -134,8 +170,8 @@ assignment = {
     "Bryant/Wright State": 0,
     "Seton Hall": 0,
     "Texas Christian": 1,
-    "Houston": 2,
-    "Alabama-Birmingham": 0,
+    "Houston": 0,
+    "Alabama-Birmingham": 2,
     "Illinois": 0,
     "Chattanooga": 1,
     "Colorado State": 0,
@@ -150,4 +186,6 @@ assignment = {
 
 scores = get_all_scores()
 print(collections.Counter(assignment.values()))
-print("Score:", sum(scores[name][r] for name, r in assignment.items()))
+print("Score:", score_assignment(scores, assignment))
+
+find_swaps(scores, assignment)
