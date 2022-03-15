@@ -2,6 +2,7 @@ import collections
 import itertools
 import os
 import pickle
+import pprint
 
 import pandas as pd
 
@@ -80,10 +81,10 @@ def get_all_scores():
         pickle.dump(name_to_scores, open(FILENAME, "wb"))
         return name_to_scores
 
+
 # sweep through `assignment` once and greedily look for swaps that increase the
 # expected score
-def find_swaps(scores, assignment):
-    df = read_data()
+def find_swap(df, scores, assignment):
     swaps = []
     score = score_assignment(scores, assignment)
     for slot, row in df.iterrows():
@@ -100,22 +101,36 @@ def find_swaps(scores, assignment):
                 opponent = df.loc[opponent_slot]
                 opponent_name = opponent["team_name"]
                 opponent_round = assignment[opponent_name]
-                if opponent_round == i:
+                if opponent_round == i:  # valid swap
                     assignment[opponent_name] = max_rounds
                     assignment[name] = i
                     new_score = score_assignment(scores, assignment)
-                    if new_score > score:
-                        print("found swap", name, opponent_name)
-                        return
+                    if new_score > score:  # score-improving swap
+                        return True
                     else:
                         assignment[name] = max_rounds
                         assignment[opponent_name] = i
                         break
             (prev_slot_start, prev_slot_end) = (slot_start, slot_end)
-    print("no greedy swaps found")
+    return False
+
+
+def find_all_swaps(scores, assignment):
+    df = read_data()
+    num_swaps = 0
+    while find_swap(df, scores, assignment):
+        num_swaps += 1
+    if num_swaps > 0:
+        print(f"Found {num_swaps} swaps")
+        pprint.pprint(assignment)
+        print("Score:", score_assignment(scores, assignment))
+    else:
+        print("No swaps found")
+
 
 def score_assignment(scores, assignment):
     return sum(scores[name][r] for name, r in assignment.items())
+
 
 assignment = {
     "Gonzaga": 6,
@@ -188,4 +203,4 @@ scores = get_all_scores()
 print(collections.Counter(assignment.values()))
 print("Score:", score_assignment(scores, assignment))
 
-find_swaps(scores, assignment)
+find_all_swaps(scores, assignment)
