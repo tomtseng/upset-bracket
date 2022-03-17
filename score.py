@@ -1,16 +1,16 @@
 import collections
 import itertools
 import os
-import pickle
 import pprint
 
 import pandas as pd
 
 
 def read_data():
-    # ncaa_forecast.csv is 538's 2022 March Madness forecast data, except I manually combined the First
-    # Four matchups, only kept the data for the men's bracket, and removed several
-    # columns
+    # ncaa_forecast.csv is from 538's 2022 March Madness forecast data, but
+    # only with the rows for the 64 teams after the First Four, and with
+    # the seeds of the winners of the First Four changed to be wholly numeric
+    # (e.g., changed from `12a` to `12`).
     df = pd.read_csv("ncaa_forecast.csv")
     df["team_slot"] //= 2
     df.sort_values("team_slot", inplace=True)
@@ -69,17 +69,11 @@ def get_scores(df, slot):
 
 
 def get_all_scores():
-    FILENAME = "scores.pickle"
-    if os.path.exists(FILENAME):
-        return pickle.load(open(FILENAME, "rb"))
-    else:
-        df = read_data()
-        name_to_scores = dict()
-        for slot, row in df.iterrows():
-            print(slot)
-            name_to_scores[row["team_name"]] = get_scores(df, slot)
-        pickle.dump(name_to_scores, open(FILENAME, "wb"))
-        return name_to_scores
+    df = read_data()
+    name_to_scores = dict()
+    for slot, row in df.iterrows():
+        name_to_scores[row["team_name"]] = get_scores(df, slot)
+    return name_to_scores
 
 
 # sweep through `assignment` once and greedily look for swaps that increase the
@@ -106,6 +100,7 @@ def find_swap(df, scores, assignment):
                     assignment[name] = i
                     new_score = score_assignment(scores, assignment)
                     if new_score > score:  # score-improving swap
+                        print(f"Swap {name} - {opponent_name}")
                         return True
                     else:
                         assignment[name] = max_rounds
@@ -142,19 +137,19 @@ assignment = {
     "Arkansas": 0,
     "Vermont": 1,
     "Alabama": 0,
-    "Notre Dame/Rutgers": 1,
-    "Texas Tech": 3,
+    "Notre Dame": 1,
+    "Texas Tech": 2,
     "Montana State": 0,
     "Michigan State": 0,
     "Davidson": 1,
-    "Duke": 2,
+    "Duke": 3,
     "Cal State Fullerton": 0,
     "Baylor": 2,
     "Norfolk State": 0,
     "North Carolina": 0,
     "Marquette": 1,
     "Saint Mary's (CA)": 0,
-    "Indiana/Wyoming": 1,
+    "Indiana": 1,
     "UCLA": 3,
     "Akron": 0,
     "Texas": 0,
@@ -166,7 +161,7 @@ assignment = {
     "Kentucky": 4,
     "Saint Peter's": 0,
     "Kansas": 5,
-    "Texas A&M/Texas Southern": 0,
+    "Texas Southern": 0,
     "San Diego State": 0,
     "Creighton": 1,
     "Iowa": 2,
@@ -182,7 +177,7 @@ assignment = {
     "Auburn": 3,
     "Jacksonville State": 0,
     "Arizona": 4,
-    "Bryant/Wright State": 0,
+    "Wright State": 0,
     "Seton Hall": 0,
     "Texas Christian": 1,
     "Houston": 0,
