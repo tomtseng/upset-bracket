@@ -55,7 +55,9 @@ def get_scores(df, slot):
             opponent = df.loc[opponent_slot]
             opponent_prob_reach = opponent[prev_round_col]
 
-            # win probability (without adjustments): https://fivethirtyeight.com/features/how-our-march-madness-predictions-work-2/
+            # win probability (without adjusting power ratings for travel or for
+            # previous wins):
+            # https://fivethirtyeight.com/features/how-our-march-madness-predictions-work-2/
             win_prob = 1 / (
                 1 + 10 ** (30.464 / 400 * -(rating - opponent["team_rating"]))
             )
