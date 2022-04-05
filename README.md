@@ -7,6 +7,4 @@ bracket using 538's power ratings and greedily looking for swaps that increase
 the expected score. The resulting bracket takes some upsets in the first round
 and mostly goes chalk after that.
 
-The bracket has not done well so far. Too bad.
-
 ![The generated bracket](/bracket.jpg)
